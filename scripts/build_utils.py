@@ -16,7 +16,18 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ################################################################################
-import fnmatch, glob, imp, os, os.path, py_compile, shutil, sys, tempfile, uuid, zipfile
+import filecmp
+import fnmatch
+import glob
+import imp
+import os
+import os.path
+import py_compile
+import shutil
+import sys
+import tempfile
+import uuid
+import zipfile
 
 # Line buffering is broken in Win32 platforms
 # Running under cygwin/mingw32 this is needed to see a line
@@ -286,8 +297,15 @@ class AppInfo(object):
 
         ofile.close() # close temp file
         ifile.close() # close original file
-        os.remove(ifilepath) # remove original file
-        shutil.move(ofilepath, ifilepath) # move new file
+
+        equal = filecmp.cmp(ifilepath, ofilepath, shallow=False)
+        if not equal:
+            print 'REPLACING ORIGINAL FILE'
+            os.remove(ifilepath) # remove original file
+            shutil.move(ofilepath, ifilepath) # move new file
+        else:
+            print 'REMOVING TEMPFILE'
+            os.remove(ofilepath) # remove temp file
 
     def replace_lines(self, line):
         if line.startswith('#define'):

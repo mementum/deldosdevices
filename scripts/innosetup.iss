@@ -17,11 +17,11 @@
 ; #define MyAppId "myappid"
 
 #define MyAppName "DelDosDevices"
-#define MyAppVersion "0.0.1"
+#define MyAppVersion "0.9.0"
 #define MyAppPublisher "Daniel Rodriguez"
 #define MyAppYear "2014"
 #define MyAppURL "http://github.com/mementum/deldosdevices"
-#define MyAppExeName "deldosdevices.exe"
+#define MyAppExeName "deldosdevices"
 #define MyBuildDir "..\binaries\setup\build\DelDosDevices"
 #define MyDistDir "..\binaries\setup\dist"
 #define MyAppId "2176648c-8035-4545-bc18-9d5317a33daa"
