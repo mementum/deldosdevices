@@ -16,6 +16,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ################################################################################
+import datetime
 import filecmp
 import fnmatch
 import glob
@@ -50,18 +51,18 @@ if sys.platform == 'win32':
 appinfomodname = 'appconstants'
 
 appdefaults = {
-    'appname': 'appname',
-    'vendorname': 'vendorname',
+    'AppName': 'AppName',
+    'VendorName': 'VendorName',
+    'AppId': 'AppId',
     'AppPublisher': 'AppPublisher',
     'AppURL': 'http://appname.com/',
-    'AppExeName': 'appname',
-    'AppYear': '2014',
+    'AppExeName': 'AppName',
+    'AppYear': str(datetime.datetime.now().year),
     'AppExeType': 'onedir', # 'onedir' or 'onefile'
-
     'AppTitle': 'AppName',
     'AppVersion': '0.0.1',
     'AppSingleInstance': True,
-    'AppUACAdmin': True,
+    'AppUACAdmin': False,
     'AppUACUiAccess': False,
     'AppUACManifest': False,
     'AppConsole': False,
@@ -71,7 +72,6 @@ appdefaults = {
 }
 
 inno_replace = ['AppName', 'AppVersion', 'AppPublisher', 'AppYear', 'AppURL', 'AppExeName', 'AppId']
-inno_appid = ['AppId',]
 inno_dirs = {'BuildDir': 'setup_build', 'DistDir': 'setup_dist'}
 
 clean_patterns = ['*~', '*.bak',]
@@ -114,7 +114,11 @@ appreldirs = [
 ##################################################
 class AppInfo(object):
 
-    def __init__(self, initdir):
+    def __init__(self, initdir=None):
+        if not initdir:
+            scriptname = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
+            initdir = os.path.dirname(scriptname)
+
         self.init_dirs(initdir)
         self.init_appinfomod()
 
@@ -157,6 +161,16 @@ class AppInfo(object):
 
         # Not found -> return default value
         return appdefaults[varnamelow]
+
+
+    def validappid(self):
+        try:
+            valid_uuid = uuid.UUID(self.get('AppId'), version=4)
+        except ValueError:
+            value = uuid.uuid4()
+            return False, value
+
+        return True, None
 
     def getappname(self):
         return self.get('AppName')
@@ -300,11 +314,9 @@ class AppInfo(object):
 
         equal = filecmp.cmp(ifilepath, ofilepath, shallow=False)
         if not equal:
-            print 'REPLACING ORIGINAL FILE'
             os.remove(ifilepath) # remove original file
             shutil.move(ofilepath, ifilepath) # move new file
         else:
-            print 'REMOVING TEMPFILE'
             os.remove(ofilepath) # remove temp file
 
     def replace_lines(self, line):
@@ -320,15 +332,7 @@ class AppInfo(object):
             value = defvalue.strip('"')
 
             if defkey in inno_replace:
-                if defkey == 'AppId':
-                    # try to validate a uuid and if failed - generate one
-                    # unless manually removed, it will only be done once
-                    try:
-                        valid_uuid = uuid.UUID(value, version=4)
-                    except ValueError:
-                        value = uuid.uuid4()
-                else:
-                    value = self.get(defkey)
+                value = self.get(defkey)
             elif defkey in inno_dirs:
                 dirname = inno_dirs[defkey]
                 value = self.reldirs[dirname]

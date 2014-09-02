@@ -18,7 +18,11 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ################################################################################
-import argparse, logging, os.path, subprocess, sys
+import argparse
+import logging
+import subprocess
+import sys
+
 logging.basicConfig(
     format='%(levelname)s: %(message)s',
     level=logging.INFO)
@@ -34,12 +38,17 @@ if __name__ == '__main__':
 
     logging.info('Creating Application Information Object')
     try:
-        scriptname = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-        scriptpath = os.path.dirname(scriptname)
-        appinfo = build_utils.AppInfo(initdir=scriptpath)
+        appinfo = build_utils.AppInfo()
     except Exception, e:
         logging.error('Failed to initialize AppInfo')
         logging.error(str(e))
+        sys.exit(1)
+
+    logging.info('Checking AppId')
+    retval, uuid = appinfo.validappid()
+    if not retval:
+        logging.error('The application has not yet defined an Application UUID and the setup cannot be generated')
+        logging.error('Please add AppId="%s" to your appconstants file', uuid)
         sys.exit(1)
 
     logging.info('Getting the InnoSetup file')

@@ -23,6 +23,7 @@ import sys
 
 AppName='DelDosDevices'
 VendorName=AppName
+AppId='2176648c-8035-4545-bc18-9d5317a33daa'
 AppPublisher='Daniel Rodriguez'
 AppURL='http://github.com/mementum/deldosdevices'
 AppExeName='deldosdevices'
