@@ -31,7 +31,7 @@ AppYear='2014'
 AppExeType='onedir' # 'onedir' or 'onefile'
 
 AppTitle='DelDosDevices'
-AppVersion='0.9.0'
+AppVersion='0.9.2'
 AppSingleInstance=True
 AppUACAdmin=True
 AppUACUiAccess=False
